@@ -4,6 +4,6 @@ class ApplicationController < ActionController::Base
   private 
 
   def current_user 
-    User.find(1)
+    User.find(2)
   end
 end

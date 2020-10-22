@@ -4,7 +4,11 @@ class FriendRequestsController < ApplicationController
   # GET /friend_requests
   # GET /friend_requests.json
   def index
-    @friend_requests = FriendRequest.all
+    if params[:requester]
+      @friend_requests = current_user.friend_requests_as_requester
+    else
+      @friend_requests = current_user.friend_requests_as_requested
+    end
   end
 
   # GET /friend_requests/1
@@ -24,7 +28,7 @@ class FriendRequestsController < ApplicationController
   # POST /friend_requests
   # POST /friend_requests.json
   def create
-    @friend_request = FriendRequest.new(friend_request_params)
+    @friend_request = current_user.friend_requests_as_requester.build(create_friend_request_params)
 
     respond_to do |format|
       if @friend_request.save
@@ -41,8 +45,8 @@ class FriendRequestsController < ApplicationController
   # PATCH/PUT /friend_requests/1.json
   def update
     respond_to do |format|
-      if @friend_request.update(friend_request_params)
-        format.html { redirect_to @friend_request, notice: 'Friend request was successfully updated.' }
+      if @friend_request.update(update_friend_request_params)
+        format.html { redirect_to friends_path, notice: 'Friend request was successfully updated.' }
         format.json { render :show, status: :ok, location: @friend_request }
       else
         format.html { render :edit }
@@ -68,7 +72,11 @@ class FriendRequestsController < ApplicationController
     end
 
     # Only allow a list of trusted parameters through.
-    def friend_request_params
-      params.require(:friend_request).permit(:requester_id, :requested_id, :accepted)
+    def create_friend_request_params
+      params.require(:friend_request).permit(:requested_id, :accepted)
+    end
+
+    def update_friend_request_params
+      params.require(:friend_request).permit(:accepted)
     end
 end

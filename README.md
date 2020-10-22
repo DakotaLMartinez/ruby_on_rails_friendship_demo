@@ -1,24 +1,57 @@
-# README
+# How to set up friendship between users in Ruby on Rails
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
 
-Things you may want to cover:
+## Dependencies (Gems/packages)
 
-* Ruby version
+## Configuration (environment variables/other stuff in config folder)
 
-* System dependencies
+## Database
+```rb
+ActiveRecord::Schema.define(version: 2020_10_22_203059) do
 
-* Configuration
+  create_table "friend_requests", force: :cascade do |t|
+    t.integer "requester_id", null: false
+    t.integer "requested_id", null: false
+    t.boolean "accepted"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["requested_id"], name: "index_friend_requests_on_requested_id"
+    t.index ["requester_id"], name: "index_friend_requests_on_requester_id"
+  end
 
-* Database creation
+  create_table "users", force: :cascade do |t|
+    t.string "username"
+    t.string "email"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
 
-* Database initialization
+end
+```
+## Models
+```rb
+class User < ApplicationRecord
+  has_many :friend_requests_as_requester, class_name: "FriendRequest", foreign_key: :requester_id
+  has_many :friends_as_requester, -> { where(friend_requests: {accepted: true}) }, through: :friend_requests_as_requester, source: :requested
+  has_many :friend_requests_as_requested, class_name: "FriendRequest", foreign_key: :requested_id
+  has_many :friends_as_requested, -> { where(friend_requests: {accepted: true}) }, through: :friend_requests_as_requested, source: :requester
+  
+  def friends 
+    ids = friends_as_requested.pluck(:id).concat(friends_as_requester.pluck(:id))
+    User.where(id: ids)
+  end
+end
 
-* How to run the test suite
+class FriendRequest < ApplicationRecord
+  belongs_to :requester, class_name: "User"
+  belongs_to :requested, class_name: "User"
+end
 
-* Services (job queues, cache servers, search engines, etc.)
 
-* Deployment instructions
+```
 
-* ...
+## Views
+
+## Controllers
+
+## Routes
