@@ -8,4 +8,5 @@ class User < ApplicationRecord
     ids = friends_as_requested.pluck(:id).concat(friends_as_requester.pluck(:id))
     User.where(id: ids)
   end
+ 
 end

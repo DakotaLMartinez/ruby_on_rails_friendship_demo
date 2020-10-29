@@ -4,11 +4,13 @@ class FriendRequestsController < ApplicationController
   # GET /friend_requests
   # GET /friend_requests.json
   def index
-    if params[:requester]
+    # byebug
+    if params[:requester] == "sent"
       @friend_requests = current_user.friend_requests_as_requester
     else
       @friend_requests = current_user.friend_requests_as_requested
     end
+    filter_friend_requests
   end
 
   # GET /friend_requests/1
@@ -69,6 +71,14 @@ class FriendRequestsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_friend_request
       @friend_request = FriendRequest.find(params[:id])
+    end
+
+    def filter_friend_requests
+      if params[:status] == 'accepted' 
+        @friend_requests = @friend_requests.accepted
+      elsif params[:status] == 'pending' 
+        @friend_requests = @friend_requests.pending 
+      end
     end
 
     # Only allow a list of trusted parameters through.

@@ -2,6 +2,20 @@
 
 <h1>Friend Requests</h1>
 
+<%= form_tag(friend_requests_path, method: :get) do %> 
+  <label for="status">Filter Requests</label>
+  <select id="status" name="status">
+    <option <%= 'selected ' if params[:status].nil? %> value="">All</option>
+    <option <%= 'selected ' if params[:status] == 'accepted'%> value="accepted">Accepted</option>
+    <option <%= 'selected ' if params[:status] == 'pending'%> value="pending">Pending</option>
+  </select>
+  <label for="requester">Which requests do you want to see?</label>
+  <select id="requester" name="requester">
+    <option <%= 'selected ' if params[:requester] == 'received'%> value="received">Received</option>
+    <option <%= 'selected ' if params[:requester] == 'sent'%> value="sent">Sent</option>
+  </select>
+  <%= submit_tag "Filter" %>
+<% end %>
 <table>
   <thead>
     <tr>
